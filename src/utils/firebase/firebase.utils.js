@@ -9,7 +9,16 @@ import {
     signOut,
     onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    writeBatch,
+    query,
+    getDocs,
+} from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyClNgsSFjcjr37iqFCJ0YXC3etv4ePoRDY",
@@ -32,6 +41,43 @@ export const signInWithGoogleRedirect = () =>
     signInWithRedirect(auth, googleProvider);
 
 export const db = getFirestore();
+
+export const addCollectionAndDocuments = async (
+    collectionKey,
+    objectsToAdd
+) => {
+    /*
+    - Transactions are a unit of work that typically involve multiple reads/writes to the db
+    - If any part of the transaction fails, then the transaction is failure and everything is reverted
+    */
+
+    // Creates a remote collection and a transaction container
+    const collectionRef = collection(db, collectionKey);
+    const batch = writeBatch(db);
+
+    // For each item in array, create a new document with its data and store in collection
+    objectsToAdd.forEach((object) => {
+        const docRef = doc(collectionRef, object.title.toLowerCase());
+        batch.set(docRef, object);
+    });
+
+    // Run the transaction
+    await batch.commit();
+};
+
+export const getCategoriesAndDocuments = async () => {
+    const collectionRef = collection(db, "categories");
+    const q = query(collectionRef);
+
+    const querySnapshot = await getDocs(q);
+    const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+        const { title, items } = docSnapshot.data();
+        acc[title.toLowerCase()] = items;
+        return acc;
+    }, {});
+
+    return categoryMap
+};
 
 export const createUserDocumentFromAuth = async (
     userAuth,

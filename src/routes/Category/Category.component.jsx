@@ -1,16 +1,20 @@
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectCategoriesMap } from "../../store/categories/category.selector";
 import { useParams } from "react-router-dom";
 
 import ProductCard from "../../components/ProductCard/ProductCard.component";
-
-import { CategoriesContext } from "../../contexts/categories.context";
 
 import "./Category.styles.scss";
 
 const Category = () => {
     const { category } = useParams();
-    const { categoriesMap } = useContext(CategoriesContext);
+    // useSelector runs every time the root reducer state changes
+    // components using useSelector re-render only when the useSelector produces different values
+    const categoriesMap = useSelector(selectCategoriesMap);
     const [products, setProducts] = useState([]);
+
+    console.log("render/re-rendering component")
 
     useEffect(() => {
         setProducts(categoriesMap[category]);

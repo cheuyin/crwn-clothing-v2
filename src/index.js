@@ -2,21 +2,21 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import { PersistGate } from "redux-persist/integration/react";
 
-import { CartProvider } from "./contexts/cart.context";
 import { Provider } from "react-redux";
-import { store } from "./store/store";
+import { store, persistor } from "./store/store";
 
 import "./index.scss";
 
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <BrowserRouter>
-                <CartProvider>
+            <PersistGate persistor={persistor}>
+                <BrowserRouter>
                     <App />
-                </CartProvider>
-            </BrowserRouter>
+                </BrowserRouter>
+            </PersistGate>
         </Provider>
     </React.StrictMode>,
     document.getElementById("root")
